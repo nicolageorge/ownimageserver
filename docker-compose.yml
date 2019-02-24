@@ -25,7 +25,7 @@ services:
     depends_on:
       - redis
     command: flask run -h 0.0.0.0 -p 8000 --reload --with-threads --debugger
-  testcontainer:
+  testimageserver:
     build: ./imageserver
     ports:
       - '8001:8001'

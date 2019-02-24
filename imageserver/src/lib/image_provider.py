@@ -41,7 +41,7 @@ class ImageProvider(object):
         except redis.exceptions.ConnectionError as exc:
             log.error('cache hits could not be increased')
 
-    def _send_file(self, full_path, mimetype):
+    def _send_file(self, full_path, ext):
         return send_file(full_path, mimetype=mimetypes.types_map[ext])
 
     def send_image(self):
@@ -55,12 +55,12 @@ class ImageProvider(object):
 
         if self.is_original:
             self.increase_data_cache('original_hits')
-            return self._send_file(full_path, mimetype=mimetypes.types_map[ext])
+            return self._send_file(full_path, ext)
 
         try:
             path = self.object_cache.get_cached_image_path(name=self.name, width=self.width, height=self.height)
             self.increase_data_cache('cache_hits')
-            return self._send_file(path, mimetype=mimetypes.types_map[ext])
+            return self._send_file(path, ext)
         except ImageNotInCache as e:
             log.info('ImageProvider.ImageNotInCache path: {},name : {}, ext: {}, size: {}x{}'\
                       .format(full_path, self.name, ext, self.width, self.height))
@@ -70,7 +70,7 @@ class ImageProvider(object):
                                                  width=self.width,
                                                  height=self.height)
             if os.path.isfile(cached_image_path):
-                return self._send_file(cached_image_path, mimetype=mimetypes.types_map[ext])
+                return self._send_file(cached_image_path, ext)
             else:
                 raise IOError
 

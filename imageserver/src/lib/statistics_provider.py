@@ -18,8 +18,8 @@ class StatisticsProvider(object):
     def get_all_info(self):
         return {
             'images': {
-                'cache_hits': self.data_cache.get('cache_hits', 0),
-                'cache_misses': self.data_cache.get('cache_misses', 0),
+                'cache_hits': int(self.data_cache.get('cache_hits')),
+                'cache_misses': int(self.data_cache.get('cache_misses')),
                 'cached_images_count': self._count_files(IMAGE_CACHE_PATH),
                 'cached_location': IMAGE_CACHE_PATH,
                 'images_count': self._count_files(IMAGE_PATH),
