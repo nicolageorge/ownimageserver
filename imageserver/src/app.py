@@ -6,7 +6,6 @@ import traceback
 from flask import Flask
 from flask import request
 from flask import abort
-from flask import render_template
 from flask import jsonify
 # from flask import send_file
 
@@ -17,7 +16,6 @@ from lib.statistics_provider import StatisticsProvider
 
 import logging
 FORMAT = '%(asctime)-15s %(message)s'
-# logging.basicConfig(filename='app.log', level=logging.INFO, format=FORMAT)
 logging.basicConfig(level=logging.INFO, format=FORMAT)
 
 app = Flask(__name__)

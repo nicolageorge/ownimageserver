@@ -1,5 +1,13 @@
 version: '3'
 services: 
+  redis:
+    image: redis:4.0.5-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+    networks:
+      - redis-net
+    volumes:
+      - redis-data:/data
   imageserver:
     build: ./imageserver
     ports:
@@ -11,4 +19,29 @@ services:
       - OWNZONES_IMAGE_PATH=/srv/ownzones/images
       - OWNZONES_IMAGE_CACHE_PATH=/srv/ownzones/cache
       - FLASK_APP=/srv/ownzones/imageserver.app:app
+      - REDIS_HOST=redis
+    networks:
+      - redis-net
+    depends_on:
+      - redis
     command: flask run -h 0.0.0.0 -p 8000 --reload --with-threads --debugger
+  testcontainer:
+    build: ./imageserver
+    ports:
+      - '8001:8001'
+    volumes:
+      - './tests:/srv/ownzones/tests'
+      - './imageserver/src:/srv/ownzones/tests/app'
+      - './images:/srv/ownzones/images'
+    environment: 
+      - OWNZONES_IMAGE_PATH=/srv/ownzones/images
+      - OWNZONES_IMAGE_CACHE_PATH=/srv/ownzones/cache
+    networks:
+      - redis-net
+    command: python /srv/ownzones/tests/run_all_tests.py
+
+networks:
+  redis-net:
+
+volumes:
+  redis-data:

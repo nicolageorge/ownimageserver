@@ -2,6 +2,8 @@ import os
 import platform
 import psutil
 
+import redis
+
 from constants import IMAGE_PATH
 from constants import IMAGE_CACHE_PATH
 
@@ -9,20 +11,23 @@ import logging
 log = logging.getLogger(__name__)
 
 
-
 class StatisticsProvider(object):
     def __init__(self):
-        self.image_count = None
-        self.cache_count = None
-        self.cache_hits = None
-        self.cache_misses = None
-        self.number_of_cached_images = None
+        self.cache = redis.Redis(host='redis', port=6379)
 
     def get_all_info(self):
         return {
+            'redis': {
+                'cache_hits': self.increase_cache_hits('cache_hits'),
+                'cache_misses': self.increase_cache_hits('cache_misses'),
+            },
             'images': {
+                'cache_hits': self.cache.get('cache_hits', 0),
+                'cache_misses': self.cache.get('cache_misses', 0),
                 'cached_images_count': self._count_files(IMAGE_CACHE_PATH),
-                'image_count': self._count_files(IMAGE_PATH),
+                'cached_location': IMAGE_CACHE_PATH,
+                'images_count': self._count_files(IMAGE_PATH),
+                'images_location': IMAGE_PATH,
             },
             'platform': {
                 'boot_time': psutil.boot_time(),

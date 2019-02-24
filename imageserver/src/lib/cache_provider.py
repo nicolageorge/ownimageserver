@@ -15,7 +15,7 @@ class FileCacheProvider(object):
 
     def _build_path(self, name, width, height):
         name_chunks = name.split('.')
-        full_path = '{0}/{1}_{2}x{3}{4}'.format(IMAGE_CACHE_PATH, name_chunks[0], width, height, name_chunks[1])
+        full_path = '{0}/{1}_{2}x{3}.{4}'.format(IMAGE_CACHE_PATH, name_chunks[0], width, height, name_chunks[1])
         return full_path
 
     def get_cached_image_path(self, name, width, height):

@@ -1,6 +1,7 @@
 import os
 import mimetypes
 
+import redis
 from flask import send_file
 
 from cache_provider import FileCacheProvider
@@ -30,7 +31,18 @@ class ImageProvider(object):
             except:
                 raise InvalidImageSize
 
-        self.cache = FileCacheProvider()
+        self.object_cache = FileCacheProvider()
+        self.data_cache = redis.Redis(host='redis', port=6379)
+
+
+    def increase_cache_hits(self, redis_key):
+        try:
+            return self.data_cache.incr(redis_key)
+        except redis.exceptions.ConnectionError as exc:
+            log.error('cache hits could not be increased')
+
+    def _send_file(self, full_path, mimetype):
+        return send_file(full_path, mimetype=mimetypes.types_map[ext])
 
     def send_image(self):
         full_path, ext = self._get_image_info()
@@ -42,20 +54,20 @@ class ImageProvider(object):
             raise BaseImageNotFound(full_path)
 
         if self.is_original:
-            return send_file(full_path, mimetype=mimetypes.types_map[ext])
+            return self._send_file(full_path, mimetype=mimetypes.types_map[ext])
 
         try:
-            path = self.cache.get_cached_image_path(name=self.name, width=self.width, height=self.height)
-            return send_file(path, mimetype=mimetypes.types_map[ext])
+            path = self.object_cache.get_cached_image_path(name=self.name, width=self.width, height=self.height)
+            return self._send_file(path, mimetype=mimetypes.types_map[ext])
         except ImageNotInCache as e:
             log.info('ImageProvider.ImageNotInCache path: {},name : {}, ext: {}, size: {}x{}'\
                       .format(full_path, self.name, ext, self.width, self.height))
-            cached_image_path = self.cache.store(original=full_path,
+            cached_image_path = self.object_cache.store(original=full_path,
                                                  name=self.name,
                                                  width=self.width,
                                                  height=self.height)
             if os.path.isfile(cached_image_path):
-                return send_file(cached_image_path, mimetype=mimetypes.types_map[ext])
+                return self._send_file(cached_image_path, mimetype=mimetypes.types_map[ext])
             else:
                 raise IOError
 
