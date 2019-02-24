@@ -1,4 +1,4 @@
-# Image Server fith File based cache
+# Image Server with File based cache
 
 - Python 2.7
 - Redis 4.0.5
