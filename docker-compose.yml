@@ -1,0 +1,13 @@
+version: '3'
+services: 
+  imageserver:
+    build: ./imageserver
+    ports:
+      - '8000:8000'
+    volumes:
+      - './imageserver/src:/srv/ownzones/imageserver'
+      - './images:/srv/ownzones/images'
+    environment: 
+      - OWNZONES_IMAGE_PATH=/srv/ownzones/images
+      - FLASK_APP=/srv/ownzones/imageserver.app:app
+    command: flask run -h 0.0.0.0 -p 8000 --reload --with-threads --debugger
