@@ -35,7 +35,7 @@ class ImageProvider(object):
         self.data_cache = redis.Redis(host='redis', port=6379)
 
 
-    def increase_cache_hits(self, redis_key):
+    def increase_data_cache(self, redis_key):
         try:
             return self.data_cache.incr(redis_key)
         except redis.exceptions.ConnectionError as exc:
@@ -54,14 +54,17 @@ class ImageProvider(object):
             raise BaseImageNotFound(full_path)
 
         if self.is_original:
+            self.increase_data_cache('original_hits')
             return self._send_file(full_path, mimetype=mimetypes.types_map[ext])
 
         try:
             path = self.object_cache.get_cached_image_path(name=self.name, width=self.width, height=self.height)
+            self.increase_data_cache('cache_hits')
             return self._send_file(path, mimetype=mimetypes.types_map[ext])
         except ImageNotInCache as e:
             log.info('ImageProvider.ImageNotInCache path: {},name : {}, ext: {}, size: {}x{}'\
                       .format(full_path, self.name, ext, self.width, self.height))
+            self.increase_data_cache('cache_misses')
             cached_image_path = self.object_cache.store(original=full_path,
                                                  name=self.name,
                                                  width=self.width,

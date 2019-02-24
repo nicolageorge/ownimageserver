@@ -13,17 +13,13 @@ log = logging.getLogger(__name__)
 
 class StatisticsProvider(object):
     def __init__(self):
-        self.cache = redis.Redis(host='redis', port=6379)
+        self.data_cache = redis.Redis(host='redis', port=6379)
 
     def get_all_info(self):
         return {
-            'redis': {
-                'cache_hits': self.increase_cache_hits('cache_hits'),
-                'cache_misses': self.increase_cache_hits('cache_misses'),
-            },
             'images': {
-                'cache_hits': self.cache.get('cache_hits', 0),
-                'cache_misses': self.cache.get('cache_misses', 0),
+                'cache_hits': self.data_cache.get('cache_hits', 0),
+                'cache_misses': self.data_cache.get('cache_misses', 0),
                 'cached_images_count': self._count_files(IMAGE_CACHE_PATH),
                 'cached_location': IMAGE_CACHE_PATH,
                 'images_count': self._count_files(IMAGE_PATH),
