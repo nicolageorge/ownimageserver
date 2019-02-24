@@ -15,6 +15,7 @@ COPY gunicorn.conf gunicorn.conf
 # sources
 # RUN mkdir /home/imageserver
 RUN mkdir -p /srv/ownzones/images
+RUN mkdir -p /srv/ownzones/cache
 
 COPY src imageserver
 

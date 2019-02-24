@@ -9,5 +9,6 @@ services:
       - './images:/srv/ownzones/images'
     environment: 
       - OWNZONES_IMAGE_PATH=/srv/ownzones/images
+      - OWNZONES_IMAGE_CACHE_PATH=/srv/ownzones/cache
       - FLASK_APP=/srv/ownzones/imageserver.app:app
     command: flask run -h 0.0.0.0 -p 8000 --reload --with-threads --debugger

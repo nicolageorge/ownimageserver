@@ -7,37 +7,37 @@ log = logging.getLogger(__name__)
 from flask import send_file
 
 from exceptions import ImageNotInCache
+from constants import IMAGE_CACHE_PATH
 
 class FileCacheProvider(object):
     def __init__(self):
         pass
 
-    def _build_path(self, location, name, width, height, extension):
-        return '{0}/cache/{1}_{2}x{3}{4}'.format(location, name, width, height, extension)
+    def _build_path(self, name, width, height):
+        name_chunks = name.split('.')
+        full_path = '{0}/{1}_{2}x{3}{4}'.format(IMAGE_CACHE_PATH, name_chunks[0], width, height, name_chunks[1])
+        return full_path
 
-    def send_image(self, location, name, extension, width, height):
-        thumb = self._build_path(location, name, width, height, extension)
+    def get_cached_image_path(self, name, width, height):
+        thumb = self._build_path(name, width, height)
         if os.path.isfile(thumb):
             log.info('Image found in cache {}'.format(thumb))
-            return send_file(thumb, mimetype=mimetypes.types_map[extension])
+            return thumb
         else:
             raise ImageNotInCache(thumb)
 
-    def store_image(self, original, location, name, extension, width, height):
-        thumb = self._build_path(location, name, width, height, extension)
-        if original != thumb:
+    def store(self, original, name, width, height):
+        thumb = self._build_path(name, width, height)
+        if os.path.isfile(thumb):
+            return thumb
+        else:
             try:
                 im = Image.open(original)
                 size = width, height
                 im.thumbnail(size, Image.ANTIALIAS)
                 im.save(thumb, "JPEG")
                 log.info('Image Stored in cache {}'.format(thumb))
+                return thumb
             except IOError:
-                log.error('IOError - cannot create thumbnail for {}'.format(original))
-
-    def store_and_send(self, original, location, name, extension, width, height):
-        try:
-            self.store_image(original, location, name, extension, width, height)
-            return self.send_image(location, name, extension, width, height)
-        except Exception:
-            raise
+                log.error('IOError - cannot create thumbnail for {} on {}'.format(original, thumb))
+                return ''

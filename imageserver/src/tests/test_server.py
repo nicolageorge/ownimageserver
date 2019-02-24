@@ -2,24 +2,25 @@ import os
 import unittest
 import requests
 
+IMAGE_PATH = os.environ.get('OWNZONES_IMAGE_PATH')
+
 class TestServer(unittest.TestCase):
     def setUp(self):
         self.images = []
-        cwd = os.getcwd()
-        image_dir = cwd.replace('tests', 'images')
-        for name in os.listdir(image_dir):
-            path = '{}/{}'.format(image_dir, name)
+        for name in os.listdir(IMAGE_PATH):
+            path = '{}/{}'.format(IMAGE_PATH, name)
             if os.path.isfile(path):
                 self.images.append(name)
+
 
     def tearDown(self):
         del self.images
 
     def _do_image_request(self, image, width=None, height=None):
         if width and height:
-            url = 'http://localhost:8000/images/{}?size={}x{}'.format(image, width, height)
+            url = 'http://0.0.0.0:8000/images/{}?size={}x{}'.format(image, width, height)
         else:
-            url = 'http://localhost:8000/images/{}'.format(image)
+            url = 'http://0.0.0.0:8000/images/{}'.format(image)
         return requests.get(url)
 
     def test_for_200_response(self):
