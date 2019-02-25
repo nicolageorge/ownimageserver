@@ -3,6 +3,7 @@ import unittest
 
 from app.lib.statistics_provider import StatisticsProvider
 
+
 class TestStatistics(unittest.TestCase):
     def test_get_all_info(self):
         stats_provider = StatisticsProvider()

@@ -16,10 +16,16 @@ class StatisticsProvider(object):
         self.data_cache = redis.Redis(host='redis', port=6379)
 
     def get_all_info(self):
+        hits = self.data_cache.get('cache_hits')
+        misses = self.data_cache.get('cache_hits')
+        if not hits:
+            hits = 0
+        if not misses:
+            misses = 0
         return {
             'images': {
-                'cache_hits': int(self.data_cache.get('cache_hits')),
-                'cache_misses': int(self.data_cache.get('cache_misses')),
+                'cache_hits': int(hits),
+                'cache_misses': int(misses),
                 'cached_images_count': self._count_files(IMAGE_CACHE_PATH),
                 'cached_location': IMAGE_CACHE_PATH,
                 'images_count': self._count_files(IMAGE_PATH),

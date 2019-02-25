@@ -5,6 +5,7 @@ from app.lib.image_provider import ImageProvider
 from app.lib.constants import IMAGE_PATH
 from mock import MagicMock
 
+
 class TestImageProvider(unittest.TestCase):
     def setUp(self):
         pass
@@ -13,9 +14,9 @@ class TestImageProvider(unittest.TestCase):
         pass
 
     def test_send_image(self):
-    	provider = ImageProvider('imag6.jpg', '500x500')
-    	provider._send_file = MagicMock(return_value='sending image..')
-    	self.assertEquals(provider.send_image(), 'sending image..')
+        provider = ImageProvider('imag6.jpg', '500x500')
+        provider._send_file = MagicMock(return_value='sending image..')
+        self.assertEquals(provider.send_image(), 'sending image..')
 
     def test_get_image_info(self):
         provider = ImageProvider('imag6.jpg', '500x500')
